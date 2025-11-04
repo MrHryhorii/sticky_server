@@ -8,6 +8,12 @@ import orderRoutes from './api/order_routes.js';
 import productRoutes from './api/product_routes.js';
 import adminProductRoutes from './api/admin_product_routes.js'
 
+// Documentation
+import path from 'path';
+import swaggerUi from 'swagger-ui-express';
+import YAML from 'yamljs';
+const swaggerDocument = YAML.load(path.resolve('swagger.yaml'));
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -26,6 +32,8 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/admin/products', adminProductRoutes);
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument)); // doc api
 
 // Start DB connection and then launch the server
 db.initDb() // This function connects to SQLite and creates tables

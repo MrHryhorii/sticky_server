@@ -1,0 +1,423 @@
+openapi: 3.0.0
+info:
+  title: Notes, Products, and Orders API
+  version: 1.0.0
+  description: API for user notes, secure product catalog (menu), and order processing (stored as JSON in notes).
+
+servers:
+  - url: http://localhost:9001/api
+    description: Development Server Base URL
+
+# =======================================================
+# PATHS (Endpoints)
+# =======================================================
+paths:
+  # --- 1. AUTH ROUTES ---
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user account.
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthInput"
+      responses:
+        "201":
+          description: User created successfully.
+        "400":
+          description: Validation error or username already exists.
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Log in and receive a JWT token.
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthInput"
+      responses:
+        "200":
+          description: Successful login, returns JWT in the response body or cookies.
+        "401":
+          description: Invalid credentials.
+
+  /auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: Log out (typically clears JWT cookie/storage).
+      operationId: logoutUser
+      responses:
+        "200":
+          description: Logout successful.
+
+  /auth/delete-account:
+    delete:
+      tags:
+        - Authentication
+      summary: Delete the user's own account.
+      operationId: deleteSelf
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Account deleted successfully.
+        "401":
+          description: Unauthorized.
+
+  # --- 2. PUBLIC PRODUCT ROUTES (MENU) ---
+  /products:
+    get:
+      tags:
+        - Products (Public Menu)
+      summary: Get the list of all ACTIVE products (The Restaurant Menu).
+      operationId: listPublicProducts
+      responses:
+        "200":
+          description: A list of active products.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+
+  # --- 3. CUSTOMER ORDER ROUTES ---
+  /orders:
+    post:
+      tags:
+        - Orders (Transaction)
+      summary: Create a new order (stored as JSON in a Note).
+      description: Requires a valid JWT. The server calculates the total price based on the current product catalog.
+      operationId: createOrder
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderInput"
+      responses:
+        "201":
+          description: Order successfully created and saved as a note record.
+        "400":
+          description: Validation failed (e.g., quantity < 1 or invalid product ID).
+        "401":
+          description: Unauthorized.
+
+  # --- 4. CUSTOMER NOTES ROUTES ---
+  /notes:
+    post:
+      tags:
+        - Notes (Customer)
+      summary: Create a new general text note.
+      operationId: createNote
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NoteInput"
+      responses:
+        "201":
+          description: Note created successfully.
+    get:
+      tags:
+        - Notes (Customer)
+      summary: Get list of all user's notes and orders.
+      operationId: getCustomerNotes
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of notes.
+
+  /notes/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: The ID of the note or order.
+    get:
+      tags:
+        - Notes (Customer)
+      summary: Get a single note or order by ID.
+      operationId: getSingleNote
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Single note/order object.
+        "404":
+          description: Note not found or not owned by the user.
+    put:
+      tags:
+        - Notes (Customer)
+      summary: Update an existing note (not recommended for Order notes).
+      operationId: updateNote
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NoteInput"
+      responses:
+        "200":
+          description: Note updated successfully.
+    delete:
+      tags:
+        - Notes (Customer)
+      summary: Delete a note or order.
+      operationId: deleteNote
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Note deleted successfully.
+
+  # --- 5. ADMIN PRODUCT CRUD ROUTES ---
+  /admin/products:
+    get:
+      tags:
+        - Admin (Products)
+      summary: Get ALL products (active/inactive) for the admin panel.
+      operationId: listAllProductsAdmin
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: A list of all products (requires admin role).
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+    post:
+      tags:
+        - Admin (Products)
+      summary: Create a new product.
+      operationId: createProduct
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductInput"
+      responses:
+        "201":
+          description: Product successfully created.
+
+  /admin/products/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: The ID of the product.
+    put:
+      tags:
+        - Admin (Products)
+      summary: Update product details (full or partial update).
+      operationId: updateProduct
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductInput"
+      responses:
+        "200":
+          description: Product successfully updated.
+    delete:
+      tags:
+        - Admin (Products)
+      summary: Delete a product.
+      operationId: deleteProduct
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Product successfully deleted.
+
+  # --- 6. ADMIN USER/NOTE ROUTES (EXISTING ADMIN_ROUTES.JS) ---
+  /admin/users:
+    get:
+      tags:
+        - Admin (Users/Notes)
+      summary: Get list of all users.
+      operationId: listAllUsers
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of all users (requires admin role).
+
+  /admin/users/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    delete:
+      tags:
+        - Admin (Users/Notes)
+      summary: Delete a specific user.
+      operationId: deleteSpecificUser
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: User deleted successfully.
+
+  /admin/notes:
+    get:
+      tags:
+        - Admin (Users/Notes)
+      summary: Get list of all notes (and orders) from all users.
+      operationId: listAllNotesAdmin
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of all notes/orders in the system (requires admin role).
+
+  /admin/notes/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    delete:
+      tags:
+        - Admin (Users/Notes)
+      summary: Delete a specific note/order by ID.
+      operationId: deleteSpecificNoteAdmin
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Note/order deleted successfully.
+
+# =======================================================
+# COMPONENTS (Schemas and Security)
+# =======================================================
+components:
+  schemas:
+    # 1. AUTH SCHEMAS (from auth_schema.js)
+    AuthInput:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 20
+          example: testuser
+        password:
+          type: string
+          minLength: 6
+          maxLength: 20
+          example: password123
+      required:
+        - username
+        - password
+
+    # 2. NOTE SCHEMAS (from note_schema.js)
+    NoteInput:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: My first note
+        content:
+          type: string
+          maxLength: 5000
+          example: This is a general note.
+      required:
+        - title
+
+    # 3. PRODUCT SCHEMAS (from product_schema.js)
+    ProductInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 3
+          example: Spicy Pepperoni Pizza
+        description:
+          type: string
+        price:
+          type: number
+          format: float
+          minimum: 0.01
+          example: 15.99
+        category:
+          type: string
+          example: Pizzas
+        image_url:
+          type: string
+          example: pizza-pep.jpg
+        is_active:
+          type: boolean
+          example: true
+    Product:
+      allOf:
+        - $ref: "#/components/schemas/ProductInput"
+        - type: object
+          properties:
+            id:
+              type: integer
+              example: 101
+
+    # 4. ORDER SCHEMAS (from order_schema.js and product_schema.js)
+    OrderItemInput:
+      type: object
+      properties:
+        productId:
+          type: integer
+          minimum: 1
+          example: 101
+        quantity:
+          type: integer
+          minimum: 1
+          example: 2
+      required:
+        - productId
+        - quantity
+    OrderInput:
+      type: array
+      description: Array of items to be ordered.
+      items:
+        $ref: "#/components/schemas/OrderItemInput"
+      minItems: 1
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Enter your JWT Bearer token obtained from /auth/login.

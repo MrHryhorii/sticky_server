@@ -1,2 +1,5 @@
 npm install express dotenv sqlite3 zod bcryptjs jsonwebtoken
 npm install --save-dev nodemon
+
+npm install yamljs
+npm install swagger-ui-express
