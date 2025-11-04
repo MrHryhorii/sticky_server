@@ -67,9 +67,9 @@ export async function deleteProduct(productId) {
 // Retrieves a single product by ID
 export async function getProductById(productId) {
     return db.get(
-        `SELECT id, name, price, is_active 
-         FROM products 
-         WHERE id = ?`, 
+        `SELECT id, name, description, price, category, tags, extra_info, image_url, is_active 
+        FROM products 
+        WHERE id = ?`, 
         [productId]
     );
 }

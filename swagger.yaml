@@ -88,7 +88,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Product"
+                  $ref: "#/components/schemas/Product" # Based on product_service.js getActiveProducts
 
   # --- 3. CUSTOMER ORDER ROUTES ---
   /orders:
@@ -105,7 +105,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/OrderInput"
+              $ref: "#/components/schemas/OrderInput" # From order_schema.js
       responses:
         "201":
           description: Order successfully created and saved as a note record.
@@ -128,7 +128,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/NoteInput"
+              $ref: "#/components/schemas/NoteInput" # From note_schema.js
       responses:
         "201":
           description: Note created successfully.
@@ -175,7 +175,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/NoteInput"
+              $ref: "#/components/schemas/NoteInput" # From note_schema.js
       responses:
         "200":
           description: Note updated successfully.
@@ -207,7 +207,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Product"
+                  $ref: "#/components/schemas/Product" # Based on product_service.js getAllProductsAdmin
     post:
       tags:
         - Admin (Products)
@@ -260,7 +260,7 @@ paths:
         "204":
           description: Product successfully deleted.
 
-  # --- 6. ADMIN USER/NOTE ROUTES (EXISTING ADMIN_ROUTES.JS) ---
+  # --- 6. ADMIN USER/NOTE ROUTES ---
   /admin/users:
     get:
       tags:
@@ -269,6 +269,17 @@ paths:
       operationId: listAllUsers
       security:
         - bearerAuth: []
+      parameters: # Based on user_service.js getAllUsers
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
       responses:
         "200":
           description: List of all users (requires admin role).
@@ -299,6 +310,17 @@ paths:
       operationId: listAllNotesAdmin
       security:
         - bearerAuth: []
+      parameters: # Based on note_service.js adminGetAllNotes
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
       responses:
         "200":
           description: List of all notes/orders in the system (requires admin role).
@@ -378,12 +400,19 @@ components:
         category:
           type: string
           example: Pizzas
+        tags:
+          type: string
+          example: spicy, popular
+        extra_info:
+          type: string
+          example: Chef's special
         image_url:
           type: string
           example: pizza-pep.jpg
         is_active:
           type: boolean
           example: true
+
     Product:
       allOf:
         - $ref: "#/components/schemas/ProductInput"
@@ -393,7 +422,7 @@ components:
               type: integer
               example: 101
 
-    # 4. ORDER SCHEMAS (from order_schema.js and product_schema.js)
+    # 4. ORDER SCHEMAS (from order_schema.js & product_schema.js)
     OrderItemInput:
       type: object
       properties:
