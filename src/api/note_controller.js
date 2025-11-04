@@ -1,5 +1,7 @@
 import * as noteService from '../services/note_service.js';
+import * as orderService from '../services/order_service.js';
 import { NoteSchema } from '../schemas/note_schema.js';
+import { orderSchema } from '../schemas/order_schema.js';
 
 // Central handler for Zod errors
 const handleZodError = (res, error) => {
@@ -41,23 +43,48 @@ export const getNote = async (req, res) => {
     }
 };
 
-// POST /api/notes
+// POST /api/notes OR POST /api/orders
 export const createNote = async (req, res) => {
     try {
-        // Zod Validation
-        const validatedData = NoteSchema.parse(req.body);
-        
         const userId = req.user.id;
-        const noteId = await noteService.createNote(userId, validatedData);
         
-        // 201 Created
-        return res.status(201).json({ message: 'Note successfully created.', noteId });
+        // TRY AS ORDER
+        try {
+            const items = orderSchema.parse(req.body); 
+            const orderData = await orderService.createStructuredOrder(userId, items);
+            const orderTitle = `ORDER #${Date.now().toString().slice(-6)}`;
+            const orderContent = JSON.stringify(orderData); 
+            const noteId = await noteService.createNote(userId, { 
+                title: orderTitle, 
+                content: orderContent 
+            }); 
+
+            return res.status(201).json({ 
+                id: noteId, 
+                message: 'Order created successfully.', 
+                order: orderData 
+            });
+            
+        } catch (orderError) {
+            if (orderError.name === 'ZodError' || orderError.statusCode === 404) {
+                // Do nothing. Not my problem. I do not care.
+            } else {
+                throw orderError; 
+            }
+        }
+        
+        // FALLBACK TO NOTE
+        const { title, content } = NoteSchema.parse(req.body);
+        const noteId = await noteService.createNote(userId, { title, content });
+        
+        return res.status(201).json({ id: noteId, title, content });
+        
     } catch (error) {
         if (error.name === 'ZodError') {
-            return handleZodError(res, error);
+            return res.status(400).json({ message: 'Validation failed.', errors: error.errors });
         }
-        console.error('Error creating note:', error);
-        return res.status(500).json({ message: 'Internal server error.' });
+        console.error('Error creating note/order:', error);
+        return res.status(500).json({ message: 'Internal server error during creation.' });
     }
 };
 

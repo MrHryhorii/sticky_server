@@ -4,6 +4,9 @@ import * as db from './data/db_adapter.js';
 import authRoutes from './api/auth_routes.js';
 import noteRoutes from './api/note_routes.js';
 import adminRoutes from './api/admin_routes.js';
+import orderRoutes from './api/order_routes.js';
+import productRoutes from './api/product_routes.js';
+import adminProductRoutes from './api/admin_product_routes.js'
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -20,6 +23,9 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/notes', noteRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/admin/products', adminProductRoutes);
 
 // Start DB connection and then launch the server
 db.initDb() // This function connects to SQLite and creates tables
