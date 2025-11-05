@@ -10,6 +10,9 @@ router.post('/register', authController.register);
 // POST /api/auth/login
 router.post('/login', authController.login);
 
+// GET /api/auth/me
+router.get('/me', protect, authController.getMe);
+
 // POST /api/auth/logout
 router.post('/logout', authController.logout);
 

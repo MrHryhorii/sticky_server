@@ -49,6 +49,33 @@ paths:
         "401":
           description: Invalid credentials.
 
+  /auth/me:
+    get:
+      tags:
+        - Authentication
+      summary: Get the current user's info (ID, username, role).
+      description: Returns the user object populated by the JWT token. Used for checking roles.
+      operationId: getMe
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successfully retrieved user info.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  username:
+                    type: string
+                  role:
+                    type: string
+                    example: admin
+        "401":
+          description: Unauthorized.
+
   /auth/logout:
     post:
       tags:

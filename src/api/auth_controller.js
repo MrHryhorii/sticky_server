@@ -79,6 +79,17 @@ export const login = async (req, res) => {
     }
 };
 
+// Gets the user's info
+export const getMe = async (req, res) => {
+    // Success
+    if (req.user) {
+        return res.status(200).json(req.user);
+    } else {
+        // Error
+        return res.status(401).json({ message: 'User not authenticated.' });
+    }
+};
+
 // Handles user logout (POST /api/auth/logout)
 export const logout = (req, res) => {
     return res.status(200).json({ 
