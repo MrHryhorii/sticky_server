@@ -4,7 +4,7 @@ import * as noteService from '../services/note_service.js';
 const DEFAULT_LIMIT = 20;
 
 // Helper to check for admin role
-const checkAdmin = (req, res) => {
+export const checkAdminRole = (req, res) => {
     if (req.user.role !== 'admin') {
         res.status(403).json({ message: 'Forbidden: Admin access required.' });
         return false;

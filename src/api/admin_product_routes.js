@@ -10,6 +10,9 @@ const adminMiddleware = [protect, productController.checkAdminRole];
 // GET /api/admin/products - Gets ALL products
 router.get('/', adminMiddleware, productController.listAllProductsAdmin);
 
+// GET /api/admin/products/:id
+router.get('/:id', adminMiddleware, productController.getSingleProductAdmin);
+
 // POST /api/admin/products - Creates a new product
 router.post('/', adminMiddleware, productController.createProduct);
 

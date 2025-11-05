@@ -22,6 +22,27 @@ export const listActiveProducts = async (req, res) => {
     }
 };
 
+// Gets a product by ID(GET /api/products/:id)
+export const getSingleActiveProduct = async (req, res) => {
+    try {
+        const productId = parseInt(req.params.id);
+        const product = await productService.getProductById(productId); //
+        // Check if product exists
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found.' });
+        }
+        // Check if product is active
+        if (product.is_active === 0) {
+             return res.status(404).json({ message: 'Product not found.' }); 
+        }
+
+        return res.status(200).json(product);
+    } catch (error) {
+        console.error('Error fetching single active product:', error);
+        return res.status(500).json({ message: 'Internal server error.' });
+    }
+};
+
 
 // ADMIN CRUD FUNCTIONS
 
@@ -33,6 +54,23 @@ export const listAllProductsAdmin = async (req, res) => {
     } catch (error) {
         console.error('Error fetching admin products:', error);
         return res.status(500).json({ message: 'Internal server error while fetching all products.' });
+    }
+};
+
+// Gets a product(any) by ID (GET /api/admin/products/:id)
+export const getSingleProductAdmin = async (req, res) => {
+    try {
+        const productId = parseInt(req.params.id);
+        const product = await productService.getProductById(productId); //
+
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found.' });
+        }
+        // Admin gets full details
+        return res.status(200).json(product);
+    } catch (error) {
+        console.error('Error fetching single product for admin:', error);
+        return res.status(500).json({ message: 'Internal server error.' });
     }
 };
 

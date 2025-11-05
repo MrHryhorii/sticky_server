@@ -8,3 +8,13 @@ export const orderItemSchema = z.object({
 
 // Schema for the entire order
 export const orderSchema = z.array(orderItemSchema).min(1, 'Order must contain at least one item.');
+
+// Define the standard set of statuses for an order
+const validStatuses = ['PENDING', 'IN_PROGRESS', 'READY', 'DELIVERED', 'CANCELLED'];
+
+// Schema for updating the order status (used by PUT /admin/orders/:id/status)
+export const OrderStatusUpdateSchema = z.object({
+    status: z.enum(validStatuses, { 
+        errorMap: () => ({ message: `Status must be one of: ${validStatuses.join(', ')}` }) 
+    }),
+});

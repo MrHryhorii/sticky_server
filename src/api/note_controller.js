@@ -2,6 +2,7 @@ import * as noteService from '../services/note_service.js';
 import * as orderService from '../services/order_service.js';
 import { NoteSchema } from '../schemas/note_schema.js';
 import { orderSchema } from '../schemas/order_schema.js';
+import { isOrderNote } from '../utils/order_utils.js';
 
 // Central handler for Zod errors
 const handleZodError = (res, error) => {
@@ -91,9 +92,6 @@ export const createNote = async (req, res) => {
 // PUT /api/notes/:id
 export const updateNote = async (req, res) => {
     try {
-        // Zod Validation
-        const validatedData = NoteSchema.parse(req.body);
-        
         const userId = req.user.id;
         const noteId = parseInt(req.params.id);
 
@@ -102,6 +100,16 @@ export const updateNote = async (req, res) => {
         if (!existingNote) {
             return res.status(404).json({ message: 'Note not found or you do not own it.' });
         }
+
+        // Check if is it an order
+        if (isOrderNote(existingNote.content)) {
+            return res.status(403).json({ 
+                message: 'Forbidden: This record is a financial order and cannot be updated via the note endpoint.' 
+            });
+        }
+
+        // Zod Validation
+        const validatedData = NoteSchema.parse(req.body);
 
         await noteService.updateNote(noteId, userId, validatedData);
 
