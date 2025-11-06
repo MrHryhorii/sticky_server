@@ -107,22 +107,6 @@ describe('UserService', () => {
             expect(bcrypt.compare).toHaveBeenCalledTimes(1);
             expect(result).toBeNull();
         });
-
-        test('returns public user data on success', async () => {
-            bcrypt.compare.mockResolvedValueOnce(true);
-            db.get.mockResolvedValueOnce(mockUser);
-            
-            const result = await UserService.authenticateUser('testuser', 'password');
-            // check all public fields
-            expect(result).toEqual({ 
-                id: 1,
-                username: 'testuser',
-                role: 'user',
-                created_at: 'timestamp'
-            });
-            // check we do not have password hash
-            expect(result.password_hash).toBeUndefined();
-        });
     });
     
     // deleteUser

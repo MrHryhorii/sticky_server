@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1762458843150" clover="3.2.0">
-  <project timestamp="1762458843150" name="All files">
+<coverage generated="1762459915485" clover="3.2.0">
+  <project timestamp="1762459915485" name="All files">
     <metrics statements="80" coveredstatements="30" conditionals="45" coveredconditionals="10" methods="19" coveredmethods="8" elements="144" coveredelements="48" complexity="0" loc="80" ncloc="80" packages="1" files="4" classes="4"/>
     <file name="note_service.js" path="C:\Users\grigo\OneDrive\Documents\HodeKode Projects\sticky_server\src\services\note_service.js">
       <metrics statements="12" coveredstatements="6" conditionals="0" coveredconditionals="0" methods="7" coveredmethods="5"/>
@@ -74,13 +74,13 @@
       <line num="26" count="2" type="stmt"/>
       <line num="28" count="0" type="stmt"/>
       <line num="29" count="0" type="stmt"/>
-      <line num="36" count="4" type="stmt"/>
-      <line num="37" count="4" type="cond" truecount="2" falsecount="0"/>
+      <line num="36" count="3" type="stmt"/>
+      <line num="37" count="3" type="cond" truecount="2" falsecount="0"/>
       <line num="38" count="1" type="stmt"/>
-      <line num="41" count="3" type="stmt"/>
-      <line num="42" count="3" type="cond" truecount="2" falsecount="0"/>
-      <line num="44" count="2" type="stmt"/>
-      <line num="45" count="2" type="stmt"/>
+      <line num="41" count="2" type="stmt"/>
+      <line num="42" count="2" type="cond" truecount="2" falsecount="0"/>
+      <line num="44" count="1" type="stmt"/>
+      <line num="45" count="1" type="stmt"/>
       <line num="47" count="1" type="stmt"/>
       <line num="53" count="2" type="stmt"/>
       <line num="54" count="2" type="cond" truecount="2" falsecount="0"/>
