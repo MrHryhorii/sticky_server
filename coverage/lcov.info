@@ -193,7 +193,7 @@ FNDA:3,authenticateUser
 FNDA:2,deleteUser
 FNDA:0,getAllUsers
 FNDA:0,deleteOwnAccount
-DA:4,1
+DA:4,3
 DA:9,3
 DA:10,3
 DA:11,1

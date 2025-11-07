@@ -39,21 +39,19 @@ const generatePaginationLinks = (baseUrl, page, limit, totalCount) => {
 // Gets a list of all users with pagination (GET /api/admin/users)
 export const listUsers = async (req, res) => {
     try {
-        if (!checkAdmin(req, res)) return; 
-
+        if (!checkAdminRole(req, res)) return;
         const page = parseInt(req.query.page) > 0 ? parseInt(req.query.page) : 1;
         const limit = parseInt(req.query.limit) > 0 ? parseInt(req.query.limit) : DEFAULT_LIMIT;
         const offset = (page - 1) * limit;
 
         const { users, totalCount } = await userService.getAllUsers(limit, offset);
-        
+
         const meta = generatePaginationLinks(
             `${req.protocol}://${req.get('host')}${req.baseUrl}${req.path}`, 
             page, 
             limit, 
             totalCount
         );
-
         return res.status(200).json({
             status: 'success',
             meta: meta,
@@ -66,16 +64,18 @@ export const listUsers = async (req, res) => {
     }
 };
 
-
 // Handles user deletion (DELETE /api/admin/users/:id)
 export const deleteUser = async (req, res) => {
     try {
-        if (!checkAdmin(req, res)) return; 
-        const targetUserId = parseInt(req.params.id);
-        if (req.user.id === targetUserId) {
-             return res.status(403).json({ message: 'You cannot delete your own account via this admin route.' });
+        if (!checkAdminRole(req, res)) return;
+        const userId = parseInt(req.params.id);
+        
+        // Prevent admin from deleting their own account
+        if (req.user.id === userId) {
+            return res.status(403).json({ message: 'You cannot delete your own account via this admin route.' });
         }
-        const success = await userService.deleteUser(targetUserId);
+
+        const success = await userService.deleteUser(userId); 
         if (!success) {
             return res.status(404).json({ message: 'User not found.' });
         }
@@ -87,11 +87,10 @@ export const deleteUser = async (req, res) => {
     }
 };
 
-
-// Gets a list of all notes from all users with pagination (GET /api/admin/notes)
+// Gets a list of all notes with pagination (GET /api/admin/notes)
 export const listAllNotes = async (req, res) => {
     try {
-        if (!checkAdmin(req, res)) return; 
+        if (!checkAdminRole(req, res)) return;
         const page = parseInt(req.query.page) > 0 ? parseInt(req.query.page) : 1;
         const limit = parseInt(req.query.limit) > 0 ? parseInt(req.query.limit) : DEFAULT_LIMIT;
         const offset = (page - 1) * limit;
@@ -116,11 +115,10 @@ export const listAllNotes = async (req, res) => {
     }
 };
 
-
 // Handles note deletion (DELETE /api/admin/notes/:id)
 export const deleteNote = async (req, res) => {
     try {
-        if (!checkAdmin(req, res)) return; 
+        if (!checkAdminRole(req, res)) return;
         const noteId = parseInt(req.params.id);
         const success = await noteService.adminDeleteNote(noteId); 
         if (!success) {
