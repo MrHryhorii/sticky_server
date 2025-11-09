@@ -1,19 +1,17 @@
-import * as productService from '../services/product_service.js';
-import { productSchema } from '../schemas/product_schema.js';
-
-// Middleware to ensure the user has 'admin' role
-const checkAdminRole = (req, res, next) => {
+// Admin check middleware
+export const checkAdminRole = (req, res, next) => { 
     if (!req.user || req.user.role !== 'admin') {
         return res.status(403).json({ message: 'Forbidden: Admin access required.' });
     }
     next();
 };
 
-// PUBLIC MENU FUNCTIONS
+// Public menu endpoints
 
-// Gets all active products for the public menu view (GET /api/products)
+// GET /api/products - public active products
 export const listActiveProducts = async (req, res) => {
     try {
+        const productService = await import('../services/product_service.js');
         const products = await productService.getActiveProducts();
         return res.status(200).json(products);
     } catch (error) {
@@ -22,18 +20,15 @@ export const listActiveProducts = async (req, res) => {
     }
 };
 
-// Gets a product by ID(GET /api/products/:id)
+// GET /api/products/:id - single active product
 export const getSingleActiveProduct = async (req, res) => {
     try {
+        const productService = await import('../services/product_service.js');
         const productId = parseInt(req.params.id);
-        const product = await productService.getProductById(productId); //
-        // Check if product exists
-        if (!product) {
+        const product = await productService.getProductById(productId);
+        
+        if (!product || product.is_active === 0) {
             return res.status(404).json({ message: 'Product not found.' });
-        }
-        // Check if product is active
-        if (product.is_active === 0) {
-             return res.status(404).json({ message: 'Product not found.' }); 
         }
 
         return res.status(200).json(product);
@@ -43,12 +38,12 @@ export const getSingleActiveProduct = async (req, res) => {
     }
 };
 
+// Admin CRUD endpoints
 
-// ADMIN CRUD FUNCTIONS
-
-// Gets ALL products (GET /api/admin/products)
+// GET /api/admin/products - all products for admin
 export const listAllProductsAdmin = async (req, res) => {
     try {
+        const productService = await import('../services/product_service.js');
         const products = await productService.getAllProductsAdmin();
         return res.status(200).json(products);
     } catch (error) {
@@ -57,16 +52,16 @@ export const listAllProductsAdmin = async (req, res) => {
     }
 };
 
-// Gets a product(any) by ID (GET /api/admin/products/:id)
+// GET /api/admin/products/:id - admin view of single product
 export const getSingleProductAdmin = async (req, res) => {
     try {
+        const productService = await import('../services/product_service.js');
         const productId = parseInt(req.params.id);
-        const product = await productService.getProductById(productId); //
-
+        const product = await productService.getProductById(productId);
         if (!product) {
             return res.status(404).json({ message: 'Product not found.' });
         }
-        // Admin gets full details
+        
         return res.status(200).json(product);
     } catch (error) {
         console.error('Error fetching single product for admin:', error);
@@ -74,33 +69,43 @@ export const getSingleProductAdmin = async (req, res) => {
     }
 };
 
-// Creates a new product (POST /api/admin/products)
+// POST /api/admin/products - create product
 export const createProduct = async (req, res) => {
     try {
-        // Validation using Zod
-        const productData = productSchema.parse(req.body);
+        const productService = await import('../services/product_service.js');
+        const { productSchema } = await import('../schemas/product_schema.js');
+
+        // validate body
+        const productData = productSchema.parse(req.body); 
         const adminId = req.user.id;
         
         const newId = await productService.createProduct(adminId, productData);
         
+        // return created id and data
         return res.status(201).json({ 
             id: newId, 
             message: 'Product created successfully.', 
             ...productData 
         });
+
     } catch (error) {
+        // validation error from Zod
         if (error.name === 'ZodError') {
-             return res.status(400).json({ message: 'Validation failed.', errors: error.errors });
+             return res.status(400).json({ message: 'Validation failed.', errors: error.issues });
         }
         console.error('Error creating product:', error);
         return res.status(500).json({ message: 'Internal server error during product creation.' });
     }
 };
 
-// Updates a product(PUT /api/admin/products/:id)
+// PUT /api/admin/products/:id - update product
 export const updateProduct = async (req, res) => {
     try {
+        const productService = await import('../services/product_service.js');
+        const { productSchema } = await import('../schemas/product_schema.js');
+
         const productId = parseInt(req.params.id);
+        // validate partial update
         const productData = productSchema.partial().parse(req.body); 
 
         if (Object.keys(productData).length === 0) {
@@ -116,16 +121,17 @@ export const updateProduct = async (req, res) => {
         return res.status(200).json({ message: 'Product updated successfully.' });
     } catch (error) {
         if (error.name === 'ZodError') {
-             return res.status(400).json({ message: 'Validation failed.', errors: error.errors });
+             return res.status(400).json({ message: 'Validation failed.', errors: error.issues });
         }
         console.error('Error updating product:', error);
         return res.status(500).json({ message: 'Internal server error during product update.' });
     }
 };
 
-// Deletes a product (DELETE /api/admin/products/:id)
+// DELETE /api/admin/products/:id - remove product
 export const deleteProduct = async (req, res) => {
     try {
+        const productService = await import('../services/product_service.js');
         const productId = parseInt(req.params.id);
         const success = await productService.deleteProduct(productId);
         
@@ -138,6 +144,3 @@ export const deleteProduct = async (req, res) => {
         return res.status(500).json({ message: 'Internal server error during product deletion.' });
     }
 };
-
-// Export the admin role checker
-export { checkAdminRole };

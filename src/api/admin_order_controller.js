@@ -58,3 +58,48 @@ export const updateOrderStatus = async (req, res) => {
         return res.status(500).json({ message: 'Internal server error during order status update.' });
     }
 };
+
+export const adminListAllOrders = async (req, res) => {
+    try {
+        const orderService = await import('../services/order_service.js');
+        
+        const limit = parseInt(req.query.limit) || 10;
+        const offset = parseInt(req.query.offset) || 0;
+
+        const { orders, totalCount } = await orderService.adminGetAllOrders(limit, offset);
+
+        return res.status(200).json({ 
+            orders, 
+            totalCount, 
+            limit, 
+            offset 
+        });
+
+    } catch (error) {
+        console.error('Error fetching all orders for admin:', error);
+        return res.status(500).json({ message: 'Internal server error while fetching all orders.' });
+    }
+};
+
+export const adminGetOrder = async (req, res) => {
+    try {
+        const orderService = await import('../services/order_service.js');
+        const orderId = parseInt(req.params.id);
+
+        if (isNaN(orderId)) {
+            return res.status(400).json({ message: 'Invalid order ID format.' });
+        }
+
+        const order = await orderService.adminGetOrderById(orderId);
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found or is not a valid order record.' });
+        }
+
+        return res.status(200).json(order);
+
+    } catch (error) {
+        console.error('Error fetching single order for admin:', error);
+        return res.status(500).json({ message: 'Internal server error while fetching order.' });
+    }
+};

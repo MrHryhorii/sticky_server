@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1762539119761" clover="3.2.0">
-  <project timestamp="1762539119761" name="All files">
-    <metrics statements="97" coveredstatements="81" conditionals="59" coveredconditionals="49" methods="25" coveredmethods="21" elements="181" coveredelements="151" complexity="0" loc="97" ncloc="97" packages="1" files="4" classes="4"/>
+<coverage generated="1762646408888" clover="3.2.0">
+  <project timestamp="1762646408888" name="All files">
+    <metrics statements="108" coveredstatements="81" conditionals="61" coveredconditionals="49" methods="30" coveredmethods="21" elements="199" coveredelements="151" complexity="0" loc="108" ncloc="108" packages="1" files="4" classes="4"/>
     <file name="note_service.js" path="C:\Users\grigo\OneDrive\Documents\HodeKode Projects\sticky_server\src\services\note_service.js">
-      <metrics statements="12" coveredstatements="6" conditionals="0" coveredconditionals="0" methods="7" coveredmethods="5"/>
+      <metrics statements="13" coveredstatements="6" conditionals="0" coveredconditionals="0" methods="8" coveredmethods="5"/>
       <line num="5" count="2" type="stmt"/>
       <line num="10" count="2" type="stmt"/>
       <line num="16" count="2" type="stmt"/>
@@ -15,10 +15,11 @@
       <line num="55" count="0" type="stmt"/>
       <line num="63" count="0" type="stmt"/>
       <line num="68" count="0" type="stmt"/>
-      <line num="70" count="0" type="stmt"/>
+      <line num="76" count="0" type="stmt"/>
+      <line num="78" count="0" type="stmt"/>
     </file>
     <file name="order_service.js" path="C:\Users\grigo\OneDrive\Documents\HodeKode Projects\sticky_server\src\services\order_service.js">
-      <metrics statements="31" coveredstatements="29" conditionals="16" coveredconditionals="14" methods="7" coveredmethods="7"/>
+      <metrics statements="41" coveredstatements="29" conditionals="18" coveredconditionals="14" methods="11" coveredmethods="7"/>
       <line num="5" count="1" type="stmt"/>
       <line num="6" count="3" type="stmt"/>
       <line num="7" count="3" type="stmt"/>
@@ -50,6 +51,16 @@
       <line num="86" count="1" type="stmt"/>
       <line num="87" count="3" type="stmt"/>
       <line num="89" count="3" type="stmt"/>
+      <line num="94" count="0" type="stmt"/>
+      <line num="96" count="0" type="stmt"/>
+      <line num="98" count="0" type="stmt"/>
+      <line num="99" count="0" type="stmt"/>
+      <line num="100" count="0" type="stmt"/>
+      <line num="102" count="0" type="stmt"/>
+      <line num="107" count="0" type="stmt"/>
+      <line num="109" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="110" count="0" type="stmt"/>
+      <line num="111" count="0" type="stmt"/>
     </file>
     <file name="product_service.js" path="C:\Users\grigo\OneDrive\Documents\HodeKode Projects\sticky_server\src\services\product_service.js">
       <metrics statements="22" coveredstatements="22" conditionals="33" coveredconditionals="25" methods="6" coveredmethods="6"/>

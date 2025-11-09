@@ -14,7 +14,7 @@ export async function createNote(userId, { title, content }) {
 export async function getNoteById(noteId, userId) {
     // WHERE clause MUST include user_id
     return db.get(
-        'SELECT id, title, content FROM notes WHERE id = ? AND user_id = ?', 
+        'SELECT id, title, content, is_order FROM notes WHERE id = ? AND user_id = ?', 
         [noteId, userId]
     );
 }
@@ -61,6 +61,14 @@ export async function adminGetAllNotes(limit, offset) {
     );
 
     return { notes, totalCount };
+}
+
+// Gets a single note by ID for admin
+export async function adminGetNoteById(noteId) {
+    return db.get(
+        'SELECT id, title, content, user_id, created_at FROM notes WHERE id = ?', 
+        [noteId]
+    );
 }
 
 // Deletes a note by admin

@@ -88,3 +88,25 @@ export async function getAllOrders(userId) {
         .map(parseOrderNote)
         .filter(order => order !== null);
 }
+
+// Get all orders for Admin (uses NoteService.adminGetAllNotes)
+export async function adminGetAllOrders(limit, offset) {
+    const NoteService = await import('./note_service.js');
+    
+    const { notes, totalCount } = await NoteService.adminGetAllNotes(limit, offset);
+
+    const parsedOrders = notes
+        .map(note => parseOrderNote(note))
+        .filter(order => order !== null);
+
+    return { orders: parsedOrders, totalCount };
+}
+
+// Get a single order by ID for Admin
+export async function adminGetOrderById(orderId) {
+    const note = await NoteService.adminGetNoteById(orderId); 
+    
+    if (!note) return null;
+    const parsedOrder = parseOrderNote(note); 
+    return parsedOrder;
+}

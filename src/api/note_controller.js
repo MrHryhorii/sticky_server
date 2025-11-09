@@ -1,10 +1,13 @@
-import * as noteService from '../services/note_service.js';
-import * as orderService from '../services/order_service.js';
-import { NoteSchema } from '../schemas/note_schema.js';
-import { orderSchema } from '../schemas/order_schema.js';
-import { isOrderNote } from '../utils/order_utils.js';
+// src/api/note_controller.js (Виправлений)
 
-// Central handler for Zod errors
+// Видаляємо всі статичні імпорти:
+// import * as noteService from '../services/note_service.js';
+// import * as orderService from '../services/order_service.js';
+// import { NoteSchema } from '../schemas/note_schema.js';
+// import { orderSchema } from '../schemas/order_schema.js';
+// import { isOrderNote } from '../utils/order_utils.js';
+
+// Central handler for Zod errors (Залишаємо локально, бо не залежить від Jest моків)
 const handleZodError = (res, error) => {
     return res.status(400).json({ 
         message: 'Validation error in input data.', 
@@ -15,6 +18,9 @@ const handleZodError = (res, error) => {
 // GET /api/notes
 export const getNotes = async (req, res) => {
     try {
+        // Динамічний імпорт для підтримки моків
+        const noteService = await import('../services/note_service.js');
+
         // req.user.id is set by the 'protect' middleware!
         const userId = req.user.id; 
         const notes = await noteService.getAllNotes(userId);
@@ -28,14 +34,16 @@ export const getNotes = async (req, res) => {
 // GET /api/notes/:id
 export const getNote = async (req, res) => {
     try {
+        // Динамічний імпорт
+        const noteService = await import('../services/note_service.js');
+
         const userId = req.user.id;
         const noteId = parseInt(req.params.id);
 
         const note = await noteService.getNoteById(noteId, userId);
 
         if (!note) {
-            // 404 Not Found: Note not found OR user does not own it
-            return res.status(404).json({ message: 'Note not found.' });
+            return res.status(404).json({ message: 'Note not found or you do not own it.' });
         }
         return res.status(200).json(note);
     } catch (error) {
@@ -47,6 +55,12 @@ export const getNote = async (req, res) => {
 // POST /api/notes OR POST /api/orders
 export const createNote = async (req, res) => {
     try {
+        // Динамічні імпорти
+        const orderService = await import('../services/order_service.js');
+        const noteService = await import('../services/note_service.js');
+        const { NoteSchema } = await import('../schemas/note_schema.js');
+        const { orderSchema } = await import('../schemas/order_schema.js');
+
         const userId = req.user.id;
         
         // TRY AS ORDER
@@ -68,7 +82,7 @@ export const createNote = async (req, res) => {
             
         } catch (orderError) {
             if (orderError.name === 'ZodError' || orderError.statusCode === 404) {
-                // Do nothing. Not my problem. I do not care.
+                // Do nothing. Fallback to Note creation.
             } else {
                 throw orderError; 
             }
@@ -78,11 +92,16 @@ export const createNote = async (req, res) => {
         const { title, content } = NoteSchema.parse(req.body);
         const noteId = await noteService.createNote(userId, { title, content });
         
-        return res.status(201).json({ id: noteId, title, content });
+        return res.status(201).json({ 
+            id: noteId, 
+            title, 
+            content,
+            message: 'Note successfully created.' 
+        });
         
     } catch (error) {
         if (error.name === 'ZodError') {
-            return res.status(400).json({ message: 'Validation failed.', errors: error.errors });
+            return handleZodError(res, error); 
         }
         console.error('Error creating note/order:', error);
         return res.status(500).json({ message: 'Internal server error during creation.' });
@@ -92,6 +111,11 @@ export const createNote = async (req, res) => {
 // PUT /api/notes/:id
 export const updateNote = async (req, res) => {
     try {
+        // Динамічні імпорти
+        const noteService = await import('../services/note_service.js');
+        const { NoteSchema } = await import('../schemas/note_schema.js');
+        const { isOrderNote } = await import('../utils/order_utils.js');
+
         const userId = req.user.id;
         const noteId = parseInt(req.params.id);
 
@@ -127,6 +151,10 @@ export const updateNote = async (req, res) => {
 // DELETE /api/notes/:id
 export const deleteNote = async (req, res) => {
     try {
+        // Динамічні імпорти
+        const noteService = await import('../services/note_service.js');
+        const { isOrderNote } = await import('../utils/order_utils.js');
+
         const userId = req.user.id;
         const noteId = parseInt(req.params.id);
 
@@ -135,7 +163,13 @@ export const deleteNote = async (req, res) => {
         if (!existingNote) {
             return res.status(404).json({ message: 'Note not found or you do not own it.' });
         }
-        
+
+        if (isOrderNote(existingNote.content)) {
+            return res.status(403).json({ 
+                message: 'Forbidden: This record is a financial order and cannot be deleted via the note endpoint.' 
+            });
+        }
+
         await noteService.deleteNote(noteId, userId);
         
         // 204 No Content (Successful deletion with no body)

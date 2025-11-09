@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { protect } from '../middleware/auth_middleware.js';
 
-import { createOrder, getOrders } from './order_controller.js';
+import { createOrder, getOrders, getOrderById } from './order_controller.js';
 
 const router = Router();
 
@@ -10,5 +10,8 @@ router.post('/', protect, createOrder);
 
 // GET /api/orders - Fetches a list of the current user's orders
 router.get('/', protect, getOrders); 
+
+// GET /api/orders/:id - Fetches a single order by ID
+router.get('/:id', protect, getOrderById);
 
 export default router;
