@@ -1,5 +1,5 @@
 TN:
-SF:src\services\note_service.js
+SF:backend\src\services\note_service.js
 FN:4,createNote
 FN:14,getNoteById
 FN:23,getAllNotes
@@ -37,7 +37,7 @@ BRF:0
 BRH:0
 end_of_record
 TN:
-SF:src\services\order_service.js
+SF:backend\src\services\order_service.js
 FN:5,(anonymous_0)
 FN:41,(anonymous_1)
 FN:60,createOrder
@@ -127,7 +127,7 @@ BRF:18
 BRH:14
 end_of_record
 TN:
-SF:src\services\product_service.js
+SF:backend\src\services\product_service.js
 FN:6,getActiveProducts
 FN:19,getAllProductsAdmin
 FN:25,createProduct
@@ -203,7 +203,7 @@ BRF:33
 BRH:25
 end_of_record
 TN:
-SF:src\services\user_service.js
+SF:backend\src\services\user_service.js
 FN:7,registerUser
 FN:34,authenticateUser
 FN:51,deleteUser

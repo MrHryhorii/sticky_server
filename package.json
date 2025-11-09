@@ -12,11 +12,11 @@
   "name": "notes-api",
   "version": "1.0.0",
   "description": "Notes API with Node.js, Express, and JWT",
-  "main": "src/app.js",
+  "main": "backend/src/app.js",
   "type": "module",
   "scripts": {
-    "start": "node src/app.js",
-    "dev": "nodemon src/app.js",
+    "start": "node backend/src/app.js",
+    "dev": "nodemon backend/src/app.js",
     "test": "node node_modules/jest/bin/jest.js",
     "test:watch": "npm run test -- --watch"
   },
