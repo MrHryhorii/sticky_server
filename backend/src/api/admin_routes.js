@@ -30,7 +30,7 @@ router.put('/orders/:id/status', adminMiddleware, adminOrderController.updateOrd
 
 // GET /api/admin/orders - Get list of all orders
 router.get('/orders', adminMiddleware, adminOrderController.adminListAllOrders);
-
+/*
 // POST /api/admin/products - create product
 router.post('/products', adminMiddleware, productController.createProduct);
 
@@ -42,5 +42,5 @@ router.put('/products/:id', adminMiddleware, productController.updateProduct);
 
 // DELETE /api/admin/products/:id - delete product
 router.delete('/products/:id', adminMiddleware, productController.deleteProduct);
-
+*/
 export default router;
