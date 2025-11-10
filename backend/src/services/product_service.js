@@ -23,7 +23,6 @@ export async function getAllProductsAdmin() {
 
 // Creates a new product, restricted to admin
 export async function createProduct(adminId, { name, description, price, category, tags, extra_info, image_url, is_active = true }) {
-    console.log(`[DB LOG: 1] Starting INSERT for: ${name}`);
     const lastID = await db.run(
         `INSERT INTO products 
          (name, description, price, category, tags, extra_info, image_url, is_active, created_by_id) 

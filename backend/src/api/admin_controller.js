@@ -4,12 +4,11 @@ import * as noteService from '../services/note_service.js';
 const DEFAULT_LIMIT = 20;
 
 // Helper to check for admin role
-export const checkAdminRole = (req, res) => {
+export const checkAdminRole = (req, res, next) => {
     if (req.user.role !== 'admin') {
-        res.status(403).json({ message: 'Forbidden: Admin access required.' });
-        return false;
+        return res.status(403).json({ message: 'Forbidden: Admin access required.' });
     }
-    return true;
+    next();
 }
 
 // Helper function to generate pagination links
@@ -39,7 +38,7 @@ const generatePaginationLinks = (baseUrl, page, limit, totalCount) => {
 // Gets a list of all users with pagination (GET /api/admin/users)
 export const listUsers = async (req, res) => {
     try {
-        if (!checkAdminRole(req, res)) return;
+        
         const page = parseInt(req.query.page) > 0 ? parseInt(req.query.page) : 1;
         const limit = parseInt(req.query.limit) > 0 ? parseInt(req.query.limit) : DEFAULT_LIMIT;
         const offset = (page - 1) * limit;
@@ -67,7 +66,7 @@ export const listUsers = async (req, res) => {
 // Handles user deletion (DELETE /api/admin/users/:id)
 export const deleteUser = async (req, res) => {
     try {
-        if (!checkAdminRole(req, res)) return;
+        
         const userId = parseInt(req.params.id);
         
         // Prevent admin from deleting their own account
@@ -90,7 +89,7 @@ export const deleteUser = async (req, res) => {
 // Gets a list of all notes with pagination (GET /api/admin/notes)
 export const listAllNotes = async (req, res) => {
     try {
-        if (!checkAdminRole(req, res)) return;
+        
         const page = parseInt(req.query.page) > 0 ? parseInt(req.query.page) : 1;
         const limit = parseInt(req.query.limit) > 0 ? parseInt(req.query.limit) : DEFAULT_LIMIT;
         const offset = (page - 1) * limit;
@@ -118,7 +117,7 @@ export const listAllNotes = async (req, res) => {
 // Handles note deletion (DELETE /api/admin/notes/:id)
 export const deleteNote = async (req, res) => {
     try {
-        if (!checkAdminRole(req, res)) return;
+        
         const noteId = parseInt(req.params.id);
         const success = await noteService.adminDeleteNote(noteId); 
         if (!success) {

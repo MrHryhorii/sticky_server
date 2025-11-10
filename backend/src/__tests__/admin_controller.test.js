@@ -27,9 +27,13 @@ const mockResponse = () => {
     return res;
 };
 
+// Define next mock globally for middleware testing
+const next = jest.fn();
+
 beforeEach(() => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
     jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.clearAllMocks();
 });
 
 afterEach(() => {
@@ -38,23 +42,24 @@ afterEach(() => {
 
 // Tests for checkAdminRole
 describe('Admin Controller: checkAdminRole', () => {
-    test('should return true and not send response if user is admin', () => {
+    
+    test('should call next() if user is admin', () => { 
         const req = { user: MOCK_ADMIN };
         const res = mockResponse();
 
-        const result = checkAdminRole(req, res);
+        checkAdminRole(req, res, next);
 
-        expect(result).toBe(true);
+        expect(next).toHaveBeenCalledTimes(1);
         expect(res.status).not.toHaveBeenCalled();
     });
 
-    test('should return false and send 403 Forbidden if user is not admin', () => {
+    test('should return 403 Forbidden and not call next() if user is not admin', () => { 
         const req = { user: MOCK_USER };
         const res = mockResponse();
 
-        const result = checkAdminRole(req, res);
+        checkAdminRole(req, res, next); // Передаємо next
 
-        expect(result).toBe(false);
+        expect(next).not.toHaveBeenCalled(); // Перевіряємо, що next() НЕ викликано
         expect(res.status).toHaveBeenCalledWith(403);
         expect(res.json).toHaveBeenCalledWith({ message: 'Forbidden: Admin access required.' });
     });
@@ -66,12 +71,11 @@ describe('Admin Controller: listUsers', () => {
 
     beforeEach(() => {
         res = mockResponse();
-        jest.clearAllMocks();
     });
     
     test('should return 200 and a list of users with pagination meta', async () => {
         const req = { 
-            user: MOCK_ADMIN,
+            user: MOCK_ADMIN, // Перевірка ролі адміна, але вже не через internal check
             query: { page: '2', limit: '10' },
             protocol: 'http', get: jest.fn(() => 'localhost:9001'), baseUrl: '/api/admin', path: '/users'
         };
@@ -105,15 +109,6 @@ describe('Admin Controller: listUsers', () => {
 
         expect(res.status).toHaveBeenCalledWith(500);
         expect(res.json).toHaveBeenCalledWith({ message: 'Internal server error during user listing.' });
-    });
-    
-    test('should return 403 if the user is not an admin', async () => {
-        const req = { user: MOCK_USER, query: {} };
-
-        await listUsers(req, res);
-
-        expect(userService.getAllUsers).not.toHaveBeenCalled();
-        expect(res.status).toHaveBeenCalledWith(403); 
     });
 });
 
@@ -155,15 +150,6 @@ describe('Admin Controller: deleteUser', () => {
 
         expect(res.status).toHaveBeenCalledWith(404); 
         expect(res.json).toHaveBeenCalledWith({ message: 'User not found.' });
-    });
-
-    test('should return 403 if the user is not an admin', async () => {
-        const req = { user: MOCK_USER, params: { id: TARGET_USER_ID } };
-
-        await deleteUser(req, res);
-
-        expect(userService.deleteUser).not.toHaveBeenCalled();
-        expect(res.status).toHaveBeenCalledWith(403);
     });
 });
 
@@ -213,15 +199,6 @@ describe('Admin Controller: listAllNotes', () => {
         expect(res.status).toHaveBeenCalledWith(500);
         expect(res.json).toHaveBeenCalledWith({ message: 'Internal server error during note listing.' });
     });
-    
-    test('should return 403 if the user is not an admin', async () => {
-        const req = { user: MOCK_USER, query: {} };
-
-        await listAllNotes(req, res);
-
-        expect(noteService.adminGetAllNotes).not.toHaveBeenCalled();
-        expect(res.status).toHaveBeenCalledWith(403);
-    });
 });
 
 
@@ -254,13 +231,5 @@ describe('Admin Controller: deleteNote', () => {
         expect(res.status).toHaveBeenCalledWith(404); 
         expect(res.json).toHaveBeenCalledWith({ message: 'Note not found.' });
     });
-    
-    test('should return 403 if the user is not an admin', async () => {
-        const req = { user: MOCK_USER, params: { id: NOTE_ID } };
 
-        await deleteNote(req, res);
-
-        expect(noteService.adminDeleteNote).not.toHaveBeenCalled();
-        expect(res.status).toHaveBeenCalledWith(403);
-    });
 });
