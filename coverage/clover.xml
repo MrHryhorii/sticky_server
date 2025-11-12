@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1762969543443" clover="3.2.0">
-  <project timestamp="1762969543443" name="All files">
+<coverage generated="1762970848946" clover="3.2.0">
+  <project timestamp="1762970848946" name="All files">
     <metrics statements="108" coveredstatements="81" conditionals="61" coveredconditionals="49" methods="30" coveredmethods="21" elements="199" coveredelements="151" complexity="0" loc="108" ncloc="108" packages="1" files="4" classes="4"/>
     <file name="note_service.js" path="C:\Users\grigo\OneDrive\Documents\HodeKode Projects\sticky_server\backend\src\services\note_service.js">
       <metrics statements="13" coveredstatements="6" conditionals="0" coveredconditionals="0" methods="8" coveredmethods="5"/>
