@@ -1,5 +1,6 @@
 import * as userService from '../services/user_service.js';
-import * as noteService from '../services/note_service.js'; 
+import * as noteService from '../services/note_service.js';
+import { logger } from '../utils/logger.js';
 
 const DEFAULT_LIMIT = 20;
 
@@ -37,6 +38,12 @@ const generatePaginationLinks = (baseUrl, page, limit, totalCount) => {
 
 // Gets a list of all users with pagination (GET /api/admin/users)
 export const listUsers = async (req, res) => {
+
+    if (!req.user || req.user.role !== 'admin') {
+        logger.warn(`Non-admin attempt to list users by user ID: ${req.user.id}`);
+        return res.status(403).json({ message: 'Forbidden: Admin access required.' });
+    }
+
     try {
         
         const page = parseInt(req.query.page) > 0 ? parseInt(req.query.page) : 1;

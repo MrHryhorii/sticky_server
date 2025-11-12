@@ -270,5 +270,39 @@ if ($NewOrderId -ne $null) {
     }
 }
 
+# -------------------------
+# 9. Admin: GET /admin/users
+# -------------------------
+Write-Host "---"
+Write-Host "[STEP 9] Admin: fetch users list (GET /api/admin/users)..."
+
+$users = Invoke-GetJson "$ApiBase/admin/users" $AdminHeaders
+
+if ($users -ne $null) {
+    if ($users.data -ne $null) {
+        $list = $users.data
+    } else {
+        $list = $users
+    }
+
+    try {
+        $uCount = ($list | Measure-Object).Count
+    } catch {
+        $uCount = 0
+    }
+
+    Write-Host "[INFO] Number of users returned to admin: $uCount"
+
+    $foundAdmin = $list | Where-Object { $_.username -eq $AdminUser.username }
+    $foundCustomer = $list | Where-Object { $_.username -eq $NewUser.username }
+
+    if ($foundAdmin) { Write-Host "[CHECK] Admin user found." } else { Write-Host "[WARN] Admin user not found in list!" }
+    if ($foundCustomer) { Write-Host "[CHECK] Customer user found." } else { Write-Host "[WARN] Customer user not found in list." }
+} else {
+    Write-Host "[FATAL] GET /api/admin/users failed."
+    exit 1
+}
+
+
 Write-Host "---"
 Write-Host "[SUCCESS] Test complete!"
